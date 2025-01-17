@@ -14,5 +14,5 @@ go to inspect, get the `mattAuthUser` and `mattAuthToken` and save to config.js
 
 run: ``node lighthouseAutomationAuth.js``
 
-# lighthouse-automation with credentials
+# last step
 saved to csv, and copied to sheet performance benchmark
