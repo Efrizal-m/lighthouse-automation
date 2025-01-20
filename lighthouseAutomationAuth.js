@@ -175,17 +175,17 @@ async function processMultipleUrls(urls) {
 //===============================================================//
 
 const urls = [
-  // 'https://sitesched.com/portal?source=/projects',
-  // 'https://dev.sitesched.com/projects',
-  // 'https://dev.sitesched.com/account/profile',
+  'https://sitesched.com/portal?source=/projects',
+  'https://dev.sitesched.com/projects',
+  'https://dev.sitesched.com/account/profile',
   'https://dev.sitesched.com/account/project-archived',
-  // 'https://dev.sitesched.com/account/project-template',
-  // 'https://dev.sitesched.com/account/task-stack',
-  // 'https://dev.sitesched.com/projects/225c6410-c72d-4de7-8ab5-980e56b19c2b/overview',
-  // 'https://dev.sitesched.com/projects/225c6410-c72d-4de7-8ab5-980e56b19c2b/progress',
-  // 'https://dev.sitesched.com/projects/225c6410-c72d-4de7-8ab5-980e56b19c2b/time-extensions',
-  // 'https://dev.sitesched.com/projects/225c6410-c72d-4de7-8ab5-980e56b19c2b/analytics',
-  // 'https://dev.sitesched.com/projects/225c6410-c72d-4de7-8ab5-980e56b19c2b/weather-forecast'
+  'https://dev.sitesched.com/account/project-template',
+  'https://dev.sitesched.com/account/task-stack',
+  'https://dev.sitesched.com/projects/225c6410-c72d-4de7-8ab5-980e56b19c2b/overview',
+  'https://dev.sitesched.com/projects/225c6410-c72d-4de7-8ab5-980e56b19c2b/progress',
+  'https://dev.sitesched.com/projects/225c6410-c72d-4de7-8ab5-980e56b19c2b/time-extensions',
+  'https://dev.sitesched.com/projects/225c6410-c72d-4de7-8ab5-980e56b19c2b/analytics',
+  'https://dev.sitesched.com/projects/225c6410-c72d-4de7-8ab5-980e56b19c2b/weather-forecast'
 ];
 
 processMultipleUrls(urls)
