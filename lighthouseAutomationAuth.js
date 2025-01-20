@@ -3,10 +3,17 @@ const lighthouse = require('lighthouse');
 const chromeLauncher = require('chrome-launcher');
 const puppeteer = require('puppeteer');
 const fs = require('fs');
-const config = require("./config")
+const path = require('path');
+const config = require("./config");
 
 // CSV file path
 const csvFilePath = 'lighthouse_auth_results.csv';
+
+// Ensure screenshots directory exists
+const screenshotsDir = path.join(__dirname, 'screenshots');
+if (!fs.existsSync(screenshotsDir)) {
+  fs.mkdirSync(screenshotsDir);
+}
 
 // Initialize CSV writer
 const csvWriter = createObjectCsvWriter({
@@ -16,12 +23,13 @@ const csvWriter = createObjectCsvWriter({
     { id: 'domContentLoaded', title: 'DOMContentLoaded' },
     { id: 'load', title: 'Load' },
     { id: 'tti', title: 'TTI' },
-    { id: 'created_at', title: 'Created At' }
+    { id: 'created_at', title: 'Created At' },
+    { id: 'screenshot', title: 'Screenshot Path' },  // Added new column for screenshot path
   ],
   append: true // Enable appending to the file instead of replacing it
 });
 
-// Function to run Lighthouse with cookies
+// Function to run Lighthouse with cookies and take screenshot
 async function runLighthouseWithCookies(url) {
   const chrome = await chromeLauncher.launch({
     chromeFlags: ['--headless', '--disable-gpu', '--no-sandbox']
@@ -63,6 +71,11 @@ async function runLighthouseWithCookies(url) {
 
   await page.goto(url);
 
+  // Take a screenshot
+  const screenshotPath = path.join(screenshotsDir, `${new Date().toISOString()}.png`);
+  await page.screenshot({ path: screenshotPath });
+  console.log(`Screenshot saved to ${screenshotPath}`);
+
   const options = {
     port: chrome.port,
     output: 'json',
@@ -81,12 +94,13 @@ async function runLighthouseWithCookies(url) {
   return {
     domContentLoaded,
     load,
-    tti
+    tti,
+    screenshotPath  // Return screenshot path
   };
 }
 
 // Function to save results to CSV
-async function saveResultsToCSV(url, domContentLoaded, load, tti) {
+async function saveResultsToCSV(url, domContentLoaded, load, tti, screenshotPath) {
   const currentTime = new Date().toISOString();
 
   const record = {
@@ -94,7 +108,8 @@ async function saveResultsToCSV(url, domContentLoaded, load, tti) {
     domContentLoaded,
     load,
     tti,
-    created_at: currentTime
+    created_at: currentTime,
+    screenshot: screenshotPath  // Add screenshot path to CSV record
   };
 
   try {
@@ -111,6 +126,7 @@ async function getAverageMetrics(url, runs = 3) {
   let domContentLoadedTotal = 0;
   let loadTotal = 0;
   let ttiTotal = 0;
+  let screenshotPath = '';
 
   for (let i = 0; i < runs; i++) {
     console.log(`Running Lighthouse test #${i + 1}...`);
@@ -120,6 +136,9 @@ async function getAverageMetrics(url, runs = 3) {
     if (data.domContentLoaded !== null) domContentLoadedTotal += data.domContentLoaded;
     if (data.load !== null) loadTotal += data.load;
     if (data.tti !== null) ttiTotal += data.tti;
+
+    // Keep the last screenshot path
+    screenshotPath = data.screenshotPath;
   }
 
   // Calculate the average values
@@ -128,13 +147,14 @@ async function getAverageMetrics(url, runs = 3) {
   const ttiAvg = ttiTotal / runs;
 
   // Save the average data to the CSV file
-  await saveResultsToCSV(url, domContentLoadedAvg, loadAvg, ttiAvg);
+  await saveResultsToCSV(url, domContentLoadedAvg, loadAvg, ttiAvg, screenshotPath);
 
   // Return the average data
   return {
     domContentLoaded: domContentLoadedAvg,
     load: loadAvg,
     tti: ttiAvg,
+    screenshot: screenshotPath  // Include the screenshot path in the return data
   };
 }
 
@@ -155,17 +175,17 @@ async function processMultipleUrls(urls) {
 //===============================================================//
 
 const urls = [
-  'https://sitesched.com/portal?source=/projects',
-  'https://dev.sitesched.com/projects',
-  'https://dev.sitesched.com/account/profile',
+  // 'https://sitesched.com/portal?source=/projects',
+  // 'https://dev.sitesched.com/projects',
+  // 'https://dev.sitesched.com/account/profile',
   'https://dev.sitesched.com/account/project-archived',
-  'https://dev.sitesched.com/account/project-template',
-  'https://dev.sitesched.com/account/task-stack',
-  'https://dev.sitesched.com/projects/225c6410-c72d-4de7-8ab5-980e56b19c2b/overview',
-  'https://dev.sitesched.com/projects/225c6410-c72d-4de7-8ab5-980e56b19c2b/progress',
-  'https://dev.sitesched.com/projects/225c6410-c72d-4de7-8ab5-980e56b19c2b/time-extensions',
-  'https://dev.sitesched.com/projects/225c6410-c72d-4de7-8ab5-980e56b19c2b/analytics',
-  'https://dev.sitesched.com/projects/225c6410-c72d-4de7-8ab5-980e56b19c2b/weather-forecast'
+  // 'https://dev.sitesched.com/account/project-template',
+  // 'https://dev.sitesched.com/account/task-stack',
+  // 'https://dev.sitesched.com/projects/225c6410-c72d-4de7-8ab5-980e56b19c2b/overview',
+  // 'https://dev.sitesched.com/projects/225c6410-c72d-4de7-8ab5-980e56b19c2b/progress',
+  // 'https://dev.sitesched.com/projects/225c6410-c72d-4de7-8ab5-980e56b19c2b/time-extensions',
+  // 'https://dev.sitesched.com/projects/225c6410-c72d-4de7-8ab5-980e56b19c2b/analytics',
+  // 'https://dev.sitesched.com/projects/225c6410-c72d-4de7-8ab5-980e56b19c2b/weather-forecast'
 ];
 
 processMultipleUrls(urls)
